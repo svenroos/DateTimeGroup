@@ -19,22 +19,35 @@ namespace DTGExample
             
             DateTime dt = new DateTime();
             dt = DateTime.Now;
-            Console.WriteLine("Current time as DTG for Z: " + dt.ToDTGString());
+            Console.WriteLine("Current local computer time:         " + dt.ToString());
+            Console.WriteLine();
+            Console.WriteLine("Current time as DTG for R:           " + dt.ToDTGString(DTG.DTGTimeZone.R));
+            Console.WriteLine("Current time as DTG for Z:           " + dt.ToDTGString());
+            Console.WriteLine("Current time as DTG for A:           " + dt.ToDTGString("A"));
+            Console.WriteLine("Current time as DTG for D*:          " + dt.ToDTGString(DTG.DTGTimeZone.DSTAR));
+            Console.WriteLine();
+            Console.WriteLine("Current time as DTG for local (J):   " + dt.ToDTGString(DTG.DTGTimeZone.J));
+            Console.WriteLine();
 
             while (true)
             {
                 Console.WriteLine();
-                Console.WriteLine("Please input a time as DTG: ");
+                Console.Write("Please input a time as DTG:          ");
                 string? input = Console.ReadLine();
 
                 if (DTG.IsValidDTG(input))
                 {
-                    dt = DTG.FromString(input);
-                    Console.WriteLine("Input date and time as UTC " + dt.ToString());
+                    dt = DateTimeExtension.FromDTGString(input);
+                    Console.WriteLine("Date and time as UTC                 " + dt.ToString());
+                    Console.Write("Date and time as DTG for Z           " + dt.ToDTGString());
+                }
+                else if (input.ToLower() == "exit")
+                {
+                    break;
                 }
                 else
                 {
-                    Console.WriteLine("Not a valid DTG");
+                    Console.Write("Not a valid DTG");
                 }
             }
 

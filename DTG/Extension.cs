@@ -2,10 +2,34 @@
 {
     public static class DateTimeExtension
     {
-        public static string ToDTGString(this DateTime dt)
+        public static string ToDTGString(this DateTime dateTime)
         {
-            DateTime dtUTC = dt.ToUniversalTime();
-            return DTG.AsDTG(dtUTC);
+            return DTG.ConvertToDTG(dateTime);
+        }
+
+        public static string ToDTGString(this DateTime dateTime, string timeZone)
+        {
+            if (!DTG.IsValidTimeZone(timeZone))
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeZone));
+            }
+
+            return DTG.ConvertToDTG(dateTime, timeZone);
+        }
+
+        public static string ToDTGString(this DateTime dateTime, DTG.DTGTimeZone dtgTimeZone)
+        {
+            return DTG.ConvertToDTG(dateTime, dtgTimeZone);
+        }
+
+        public static DateTime FromDTGString(string dtgString)
+        {
+            if (string.IsNullOrEmpty(dtgString))
+            {
+                throw new ArgumentNullException(dtgString);
+            }
+
+             return DTG.ConvertFromDTGString(dtgString);
         }
     }
 }
