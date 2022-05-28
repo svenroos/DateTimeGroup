@@ -6,88 +6,76 @@ using System.Threading.Tasks;
 
 namespace DateTimeGroup
 {
-    public static class DTG
+    public class DTG
     {
-        private static Dictionary<int, string> monthindexname = new Dictionary<int, string>();
-        private static Dictionary<string, int> monthnameindex = new Dictionary<string, int>();
-        private static Dictionary<string, double> timezonelettertooffset = new Dictionary<string, double>();
+        public enum DTGTimeZone
+        {
+            Y, X, W, VSTAR, V, U, T, S, R, Q, PSTAR, P, O, N,
+            Z,
+            A, B, C, D, DSTAR, E, ESTAR, F, FSTAR, G, H, I, ISTAR, K, KSTAR, L, M, MSTAR,
+            J
+        }
+        private static DTGTimeZoneMap s_dtgTimeZoneMap;
+        private static DTGMonthMap s_dtgMonthMap;
 
-        private static int century = 2000;
+        private static int s_century = 2000;
 
         static DTG()
         {
-            monthindexname.Add(1, "JAN");
-            monthindexname.Add(2, "FEB");
-            monthindexname.Add(3, "MAR");
-            monthindexname.Add(4, "APR");
-            monthindexname.Add(5, "MAY");
-            monthindexname.Add(6, "JUN");
-            monthindexname.Add(7, "JUL");
-            monthindexname.Add(8, "AUG");
-            monthindexname.Add(9, "SEP");
-            monthindexname.Add(10, "OCT");
-            monthindexname.Add(11, "NOV");
-            monthindexname.Add(12, "DEC");
+            s_dtgTimeZoneMap = new DTGTimeZoneMap();
+            s_dtgMonthMap = new DTGMonthMap();
+        }
+        public static string ConvertToDTG(DateTime dateTime)
+        {
+            return ConvertToDTG(dateTime, DTGTimeZone.Z);
+        }
+        public static string ConvertToDTG(DateTime dateTime, string dtgTimeZone)
+        {
+            if (!IsValidTimeZone(dtgTimeZone))
+            {
+                throw new ArgumentOutOfRangeException(nameof(dtgTimeZone));
+            }
 
-            monthnameindex.Add("JAN", 1);
-            monthnameindex.Add("FEB", 2);
-            monthnameindex.Add("MAR", 3);
-            monthnameindex.Add("APR", 4);
-            monthnameindex.Add("MAY", 5);
-            monthnameindex.Add("JUN", 6);
-            monthnameindex.Add("JUL", 7);
-            monthnameindex.Add("AUG", 8);
-            monthnameindex.Add("SEP", 9);
-            monthnameindex.Add("OCT", 10);
-            monthnameindex.Add("NOV", 11);
-            monthnameindex.Add("DEC", 12);
-
-            timezonelettertooffset.Add("Y", -12.0);
-            timezonelettertooffset.Add("X", -11.0);
-            timezonelettertooffset.Add("W", -10.0);
-            timezonelettertooffset.Add("V", -9.0);
-            timezonelettertooffset.Add("U", -8.0);
-            timezonelettertooffset.Add("T", -7.0);
-            timezonelettertooffset.Add("S", -6.0);
-            timezonelettertooffset.Add("R", -5.0);
-            timezonelettertooffset.Add("Q", -4.0);
-            timezonelettertooffset.Add("P*", -3.5);
-            timezonelettertooffset.Add("P", -3.0);
-            timezonelettertooffset.Add("O", -2.0);
-            timezonelettertooffset.Add("N", -1.0);
-            timezonelettertooffset.Add("Z", 0.0);
-            timezonelettertooffset.Add("A", 1.0);
-            timezonelettertooffset.Add("B", 2.0);
-            timezonelettertooffset.Add("C", 3.0);
-            timezonelettertooffset.Add("D", 4.0);
-            timezonelettertooffset.Add("D*", 4.5);
-            timezonelettertooffset.Add("E", 5.0);
-            timezonelettertooffset.Add("F", 6.0);
-            timezonelettertooffset.Add("G", 7.0);
-            timezonelettertooffset.Add("H", 8.0);
-            timezonelettertooffset.Add("I", 9.0);
-            timezonelettertooffset.Add("K", 10.0);
-            timezonelettertooffset.Add("L", 11.0);
-            timezonelettertooffset.Add("M", 12.0);
-            timezonelettertooffset.Add("M*", 13.0);
-
-
+            return ConvertToDTG(dateTime, s_dtgTimeZoneMap.TimeZoneForString(dtgTimeZone));
         }
 
-        public static string AsDTG(DateTime dt)
+        public static string ConvertToDTG(DateTime dateTime, DTGTimeZone dtgTimeZone)
+        {
+            double offset;
+
+            if (dtgTimeZone == DTGTimeZone.J)
+            {
+                offset = TimeZoneInfo.Local.BaseUtcOffset.Hours;
+                if (TimeZoneInfo.Local.IsDaylightSavingTime(dateTime))
+                {
+                    offset = offset + 1.0;
+                }
+            }
+            else
+            {
+                offset = s_dtgTimeZoneMap.OffsetForTimeZone(dtgTimeZone);
+            }
+
+            DateTime dt = dateTime.ToUniversalTime().AddHours(offset);
+
+            return ToDTGString(dt, dtgTimeZone);
+        }
+
+
+        private static string ToDTGString(DateTime dateTime, DTGTimeZone dtgTimeZone)
         {
             string dtg = "";
-            dtg = dtg + dt.Day.ToString("00");
-            dtg = dtg + dt.Hour.ToString("00");
-            dtg = dtg + dt.Minute.ToString("00");
-            dtg = dtg + "Z";
-            dtg = dtg + GetMonthName(dt.Month);
-            dtg = dtg + dt.Year.ToString().Substring(2);
+            dtg = dtg + dateTime.Day.ToString("00");
+            dtg = dtg + dateTime.Hour.ToString("00");
+            dtg = dtg + dateTime.Minute.ToString("00");
+            dtg = dtg + s_dtgTimeZoneMap.StringForTimeZone(dtgTimeZone);
+            dtg = dtg + s_dtgMonthMap.StringForMonthIndex(dateTime.Month);
+            dtg = dtg + dateTime.Year.ToString().Substring(2);
 
             return dtg;
         }
 
-        public static DateTime FromString(string? dtgstring)
+        public static DateTime ConvertFromDTGString(string? dtgstring)
         {
             if (string.IsNullOrEmpty(dtgstring))
             {
@@ -104,6 +92,43 @@ namespace DateTimeGroup
             {
                 return dt;
             }
+        }
+
+        private static bool ConvertToDateTime(string dtgstring, out DateTime dt)
+        {
+            if (!IsValidDTG(dtgstring))
+            {
+                dt = DateTime.MinValue;
+                return false;
+            }
+
+            int day = Int32.Parse(dtgstring.Substring(0, 2));
+            int hour = Int32.Parse(dtgstring.Substring(2, 2));
+            int minute = Int32.Parse(dtgstring.Substring(4, 2));
+            string strzone = dtgstring.Substring(6, dtgstring.Length - 11);
+            string strmonth = dtgstring.Substring(dtgstring.Length - 5, 3);
+            int year = Int32.Parse(dtgstring.Substring(dtgstring.Length - 2, 2));
+
+            dt = new DateTime(s_century + year, s_dtgMonthMap.IndexForMonthName(strmonth), day, hour, minute, 0, DateTimeKind.Utc);
+
+            double offset;
+
+            if (s_dtgTimeZoneMap.TimeZoneForString(strzone) == DTGTimeZone.J)
+            {
+                offset = TimeZoneInfo.Local.BaseUtcOffset.Hours;
+                if (TimeZoneInfo.Local.IsDaylightSavingTime(dt))
+                {
+                    offset = offset + 1.0;
+                }
+            }
+            else
+            {
+                offset = s_dtgTimeZoneMap.OffsetForString(strzone);
+            }
+
+            dt = dt.AddHours(-offset);
+
+            return true;
         }
 
         public static bool IsValidDTG(string? dtgstring)
@@ -139,11 +164,11 @@ namespace DateTimeGroup
             {
                 return false;
             }
-            if (!timezonelettertooffset.ContainsKey(strzone))
+            if (!s_dtgTimeZoneMap.ContainsString(strzone))
             {
                 return false;
             }
-            if (!monthnameindex.ContainsKey(strmonth))
+            if (!s_dtgMonthMap.ContainsMonthName(strmonth))
             {
                 return false;
             }
@@ -155,7 +180,7 @@ namespace DateTimeGroup
 
             try
             {
-                DateTime dt = new DateTime(century + year, monthnameindex[strmonth], day, hour, minute, 0, DateTimeKind.Utc);
+                DateTime dt = new DateTime(s_century + year, s_dtgMonthMap.IndexForMonthName(strmonth), day, hour, minute, 0, DateTimeKind.Utc);
             }
             catch
             {
@@ -166,42 +191,11 @@ namespace DateTimeGroup
             return true;
         }
 
-        private static bool ConvertToDateTime(string dtgstring, out DateTime dt)
-        {
-            if (!IsValidDTG(dtgstring))
-            {
-                dt = DateTime.MinValue;
-                return false;
-            }
 
-            int day = Int32.Parse(dtgstring.Substring(0, 2));
-            int hour = Int32.Parse(dtgstring.Substring(2, 2));
-            int minute = Int32.Parse(dtgstring.Substring(4, 2));
-            string strzone = dtgstring.Substring(6, dtgstring.Length - 11);
-            string strmonth = dtgstring.Substring(dtgstring.Length - 5, 3);
-            int year = Int32.Parse(dtgstring.Substring(dtgstring.Length - 2, 2));
-
-            dt = new DateTime(century + year, monthnameindex[strmonth], day, hour, minute, 0, DateTimeKind.Utc);
-
-            double offset = timezonelettertooffset[strzone];
-            dt = dt.AddHours(-offset);
-
-            return true;
-        }
-
-        private static string GetMonthName(int monthindex)
-        {
-            if (!monthindexname.ContainsKey(monthindex))
-            {
-                throw new KeyNotFoundException("Invalid index for month");
-            }
-
-            return monthindexname[monthindex];
-        }
 
         public static int GetCenturyBase()
         {
-            return century;
+            return s_century;
         }
 
         public static void SetCenturyBase(int newcentury)
@@ -218,6 +212,11 @@ namespace DateTimeGroup
                 throw new ArgumentOutOfRangeException("Century not valid (has to be e.g. '1900' or '2000' or '2100' etc.");
             }
 
+        }
+
+        public static bool IsValidTimeZone(string timeZone)
+        {
+            return s_dtgTimeZoneMap.ContainsString(timeZone);
         }
     }
 }

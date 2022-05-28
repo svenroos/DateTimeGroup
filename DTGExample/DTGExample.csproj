@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DTG\DTG.csproj" />
+    <ProjectReference Include="..\DTG\DateTimeGroup.csproj" />
   </ItemGroup>
 
 </Project>
