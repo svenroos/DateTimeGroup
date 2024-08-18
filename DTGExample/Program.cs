@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DateTimeGroup;
+using DateTimeGroupExtension;
 
 
 
@@ -12,46 +8,67 @@ namespace DTGExample
     internal class DTGExample
     {
         public static void Main()
-        {
-            Console.WriteLine("Example for DTG");
+        {      
+            DateTime dt = DateTime.Now;
+            Console.WriteLine("DateTimeGroup Example");
             Console.WriteLine();
+            Console.WriteLine("Current local computer time:                 " + dt.ToLocalTime().ToString());
             Console.WriteLine();
-            
-            DateTime dt = new DateTime();
-            dt = DateTime.Now;
-            Console.WriteLine("Current local computer time:         " + dt.ToString());
-            Console.WriteLine();
-            Console.WriteLine("Current time as DTG for R:           " + dt.ToDTGString(DTG.DTGTimeZone.R));
-            Console.WriteLine("Current time as DTG for Z:           " + dt.ToDTGString());
-            Console.WriteLine("Current time as DTG for A:           " + dt.ToDTGString("A"));
-            Console.WriteLine("Current time as DTG for D*:          " + dt.ToDTGString(DTG.DTGTimeZone.DSTAR));
-            Console.WriteLine();
-            Console.WriteLine("Current time as DTG for local (J):   " + dt.ToDTGString(DTG.DTGTimeZone.J));
+            Console.WriteLine("Current time as DTG for Z:                   " + dt.ToDTGString());
+            Console.WriteLine("Current time as DTG for R:                   " + dt.ToDTGString("R"));
+            Console.WriteLine("Current time as DTG for A:                   " + dt.ToDTGString("A"));
+            Console.WriteLine("Current time as DTG for D*:                  " + dt.ToDTGString("D*"));
+            Console.WriteLine("Current time as DTG for local (J):           " + dt.ToDTGString("J"));
             Console.WriteLine();
 
             while (true)
             {
                 Console.WriteLine();
-                Console.Write("Please input a time as DTG:          ");
-                string? input = Console.ReadLine();
+                Console.Write("Please input a time as DTG:                  ");
+                string? inputdtg = Console.ReadLine();
 
-                if (DTG.IsValidDTG(input))
+                if (string.IsNullOrEmpty(inputdtg))
                 {
-                    dt = DateTimeExtension.FromDTGString(input);
-                    Console.WriteLine("Date and time as UTC                 " + dt.ToString());
-                    Console.Write("Date and time as DTG for Z           " + dt.ToDTGString());
+                    inputdtg = "";
                 }
-                else if (input.ToLower() == "exit")
+
+                if (inputdtg.ToLower() == "exit")
                 {
                     break;
                 }
-                else
+
+                if (!DateTimeGroup.IsValidDTG(inputdtg))
                 {
-                    Console.Write("Not a valid DTG");
+                    Console.Write("\"" + inputdtg + "\" is not a valid DTG");
+                    Console.WriteLine();
+                }
+                else
+                { 
+                    Console.Write("Please input a DTG TimeZone (default: Z):    ");
+                    string? inputtz = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(inputtz))
+                    {
+                        inputtz = "Z";
+                    }
+
+                    if (!DateTimeGroup.IsValidTimeZone(inputtz))
+                    {
+                        Console.Write("\"" + inputtz + "\" is not a valid timezone");
+                        Console.WriteLine();
+                    }
+                    else
+                    {
+                        dt = DateTimeGroupExtension.DateTimeExtension.FromDTGString(inputdtg);
+                        Console.WriteLine("Date and time as DTG for Z                   " + dt.ToDTGString());
+                        Console.WriteLine("Date and time as DTG for " + inputtz + "                   " + dt.ToDTGString(inputtz));
+                        Console.WriteLine("Date and Time in Operating System Local Time " + dt.ToLocalTime().ToString());
+                        Console.WriteLine("Date and time as UTC                         " + dt.ToString());
+                        Console.WriteLine();
+                    }
+                   
                 }
             }
-
-
         }
     }
 }
