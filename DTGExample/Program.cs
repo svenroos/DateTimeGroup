@@ -10,7 +10,7 @@ namespace DTGExample
         public static void Main()
         {      
             DateTime dt = DateTime.Now;
-            Console.WriteLine("DateTimeGroup Example");
+            Console.WriteLine("DateTimeGroup Example (Console)");
             Console.WriteLine();
             Console.WriteLine("Current local computer time:                 " + dt.ToLocalTime().ToString());
             Console.WriteLine();
