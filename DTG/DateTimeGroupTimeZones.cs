@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DateTimeGroupExtension
 {
     internal class DateTimeGroupTimeZones
     {
+#if NET5_0_OR_GREATER
         private readonly Dictionary<string, double> _dtgTimeZoneMap = new();
-
+#else
+        private readonly Dictionary<string, double> _dtgTimeZoneMap = new Dictionary<string, double>();
+#endif
         internal DateTimeGroupTimeZones()
         {
             _dtgTimeZoneMap.Add("Y", -12.0);
