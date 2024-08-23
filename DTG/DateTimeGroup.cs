@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DateTimeGroupExtension
 {
@@ -205,6 +206,16 @@ namespace DateTimeGroupExtension
                 throw new ArgumentOutOfRangeException(newcentury.ToString(), "Century not valid (has to be e.g. '1900' or '2000' or '2100' etc.");
             }
 
+        }
+
+        internal static List<string> GetTimeZones()
+        {
+            return s_dtgTimeZoneMap.GetTimeZones();
+        }
+
+        internal static List<KeyValuePair<string, double>> GetTimeZonesWithOffset()
+        {
+            return s_dtgTimeZoneMap.GetTimeZonesWithOffset();
         }
     }
 }

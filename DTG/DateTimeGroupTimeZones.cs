@@ -7,7 +7,7 @@ namespace DateTimeGroupExtension
     internal class DateTimeGroupTimeZones
     {
 #if NET5_0_OR_GREATER
-        private readonly Dictionary<string, double> _dtgTimeZoneMap = new();
+        private readonly Dictionary<string, double> _dtgTimeZoneMap = [];
 #else
         private readonly Dictionary<string, double> _dtgTimeZoneMap = new Dictionary<string, double>();
 #endif
@@ -39,6 +39,7 @@ namespace DateTimeGroupExtension
             _dtgTimeZoneMap.Add("D*", 4.5);
             _dtgTimeZoneMap.Add("E", 5.0);
             _dtgTimeZoneMap.Add("E*", 5.5);
+            _dtgTimeZoneMap.Add("E#", 5.75);
             _dtgTimeZoneMap.Add("F", 6.0);
             _dtgTimeZoneMap.Add("F*", 6.5);
             _dtgTimeZoneMap.Add("G", 7.0);
@@ -49,7 +50,10 @@ namespace DateTimeGroupExtension
             _dtgTimeZoneMap.Add("K*", 10.5);
             _dtgTimeZoneMap.Add("L", 11.0);
             _dtgTimeZoneMap.Add("L*", 11.0);
+            _dtgTimeZoneMap.Add("M", 12.0);
+            _dtgTimeZoneMap.Add("M+", 12.75);
             _dtgTimeZoneMap.Add("M*", 13.0);
+            _dtgTimeZoneMap.Add("M#", 14.0);
 
             _dtgTimeZoneMap.Add("J", 0.0);
 
@@ -111,5 +115,22 @@ namespace DateTimeGroupExtension
             }
         }
 
+        internal List<string> GetTimeZones()
+        {
+    #if NET8_0_OR_GREATER
+            return [.. _dtgTimeZoneMap.Keys];
+    #else
+            return _dtgTimeZoneMap.Keys.ToList();
+    #endif
+        }
+
+        internal List<KeyValuePair<string, double>> GetTimeZonesWithOffset()
+        {
+    #if NET8_0_OR_GREATER
+            return [.. _dtgTimeZoneMap];
+    #else
+            return _dtgTimeZoneMap.ToList();
+    #endif
+        }
     }
 }
