@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using DateTimeGroupExtension;
 
 
@@ -32,8 +33,15 @@ namespace DTGExample
                     inputdtg = "";
                 }
 
-                if (inputdtg.ToLower() == "exit")
+                if (StringComparer.CurrentCultureIgnoreCase.Compare(inputdtg, "exit") == 0)
                 {
+                    List<KeyValuePair<string, double>> stringoffsetlist = DateTimeExtension.GetTimeZonesWithOffset();
+                    foreach (KeyValuePair<string, double> kvp in stringoffsetlist)
+                    {
+                        Console.WriteLine("TimeZone " + kvp.Key + " has an offset of " + kvp.Value.ToString());
+                    }
+                    Console.WriteLine();
+
                     break;
                 }
 
@@ -68,6 +76,9 @@ namespace DTGExample
                     }
                    
                 }
+
+
+
             }
         }
     }
