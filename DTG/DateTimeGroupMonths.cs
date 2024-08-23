@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DateTimeGroupExtension
 {
     internal class DateTimeGroupMonths
     {
+#if NET5_0_OR_GREATER
         private readonly Dictionary<int, string> _dtgMonthMap = new();
-
+#else
+        private readonly Dictionary<int, string> _dtgMonthMap = new Dictionary<int, string>();
+#endif
         internal DateTimeGroupMonths()
         {
             _dtgMonthMap.Add(1, "JAN");

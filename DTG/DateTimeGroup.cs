@@ -167,7 +167,12 @@ namespace DateTimeGroupExtension
 
             try
             {
+#if NET5_0_OR_GREATER
                 DateTime dt = new(s_century + year, s_dtgMonthMap.IndexForMonthName(strmonth), day, hour, minute, 0, DateTimeKind.Utc);
+#else
+                DateTime dt = new DateTime(s_century + year, s_dtgMonthMap.IndexForMonthName(strmonth), day, hour, minute, 0, DateTimeKind.Utc);
+#endif
+
             }
             catch
             {
